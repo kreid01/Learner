@@ -1,0 +1,23 @@
+﻿
+<div class="flex mt-16">
+<MudNavMenu class="bg-indigo-800 h-[100vh] w-32">
+<NavLink href="/" ><div class=" my-5 bg-gray-500 border-2 border-blue-500 hover:border-white w-16 h-16 
+rounded-md mx-auto text-2xl text-white bg-blue-500 text-center pt-4"> H</div></NavLink>
+<NavLink href="/notes"><div class=" my-5  border-yellow-500 border-2 hover:border-white w-16 h-16 
+rounded-md mx-auto text-2xl text-white bg-yellow-500 text-center pt-4"> N</div></NavLink>
+<NavLink href="/create"><div class=" my-5 border-2 hover:border-white border-indigo-700 w-16 h-16 
+rounded-md mx-auto text-2xl text-white  text-center pt-4">+</div></NavLink>
+</MudNavMenu>
+<ChannelMenu/>
+</div>
+
+@code {
+private bool collapseNavMenu = true;
+
+private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+private void ToggleNavMenu()
+{
+    collapseNavMenu = !collapseNavMenu;
+}
+}
