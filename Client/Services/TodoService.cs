@@ -51,7 +51,7 @@ namespace Learner.Client.Services
 
             Todos todo = new()
             {
-                Id = Todos.Count() + 1,
+                Id = Todos.Count + 1,
                 PosterId = 1,
                 Title = updateTodo.Title,
                 Description = updateTodo.Description,

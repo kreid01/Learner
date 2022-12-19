@@ -45,7 +45,7 @@ namespace Learner.Server.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateTodo(Todos todoRequest)
         {
-            var result = _repository.PostTodo(todoRequest);
+            var result = await _repository.PostTodo(todoRequest);
 
             if (result.Id == 0)
             {
