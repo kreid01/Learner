@@ -1,23 +1,47 @@
-﻿
+﻿@using Learner.Client.DTOs
+@using Learner.Client.Services
+@using Learner.Shared.Models
+@inject IChatService ChatService
+
 <div class="flex mt-16">
-<MudNavMenu class="bg-indigo-800 h-[100vh] w-32">
-<NavLink href="/" ><div class=" my-5 bg-gray-500 border-2 border-blue-500 hover:border-white w-16 h-16 
-rounded-md mx-auto text-2xl text-white bg-blue-500 text-center pt-4"> H</div></NavLink>
-<NavLink href="/notes"><div class=" my-5  border-yellow-500 border-2 hover:border-white w-16 h-16 
-rounded-md mx-auto text-2xl text-white bg-yellow-500 text-center pt-4"> N</div></NavLink>
-<NavLink href="/create"><div class=" my-5 border-2 hover:border-white border-indigo-700 w-16 h-16 
-rounded-md mx-auto text-2xl text-white  text-center pt-4">+</div></NavLink>
-</MudNavMenu>
-<ChannelMenu/>
+    <MudNavMenu class="bg-indigo-800 h-[95vh] overflow-y-hidden w-32">
+        <NavLink href="/">
+            <div class=" my-5 bg-gray-500 border-2 border-blue-500 hover:border-white w-16 h-16
+rounded-md mx-auto text-2xl text-white bg-blue-500 text-center pt-4">
+                H
+            </div>
+        </NavLink>
+        <button class="ml-8" @onclick="ToggleNavMenu">
+            <div class="mx-auto border-2 hover:border-white border-indigo-700 w-16 h-16
+rounded-md mx-auto text-2xl text-white  text-center pt-4">
+                +
+            </div>
+        </button>
+    </MudNavMenu>
+    <ChannelMenu />
+
+    @if (!collapseNavMenu)
+    {
+        <div class="h-[15vh] w-[20%] z-10 bg-purple-200 border-2 rounded-md shadow-md  absolute top-[30%] left-[5%]">
+            <MudTextField  Label="Title" class="mx-2 mt-2" Margin="Margin.Dense"
+                      Variant="Variant.Text" @bind-Value="chat.Title"></MudTextField>
+<MudButton class="mt-5" @onclick="HandlePost" Variant="Variant.Filled">Create</MudButton>
+        </div>
+    }
 </div>
 
 @code {
-private bool collapseNavMenu = true;
+    private bool collapseNavMenu = true;
 
-private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+    PostChatDto chat = new();
 
-private void ToggleNavMenu()
-{
-    collapseNavMenu = !collapseNavMenu;
-}
+    async Task HandlePost()
+    {
+        await ChatService.PostChat(chat);
+    }
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
 }

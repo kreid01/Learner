@@ -1,18 +1,20 @@
 ﻿@inherits LayoutComponentBase
-
 <MudThemeProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
 
-<MudLayout class="flex">
+<MudLayout class="flex max-h-[100vh] overflow-x-hidden">
     <MudAppBar>
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
-        Don't Slack
+        <h1 class="text-3xl ml-[45vw] font-bold">        DONT SLACK
+            </h1>
     <LoginDisplay/>
     </MudAppBar>
         <NavMenu/>
     <MudMainContent>
+
+        <div class="w-[100vw] h-[97vh] bg-indigo-800">
         @Body
+        </div>
     </MudMainContent>
 </MudLayout>
 

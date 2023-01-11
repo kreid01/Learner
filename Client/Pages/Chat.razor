@@ -1,0 +1,115 @@
+﻿@page "/chat/{id:int}"
+@using Learner.Client.Services
+@using Learner.Shared.Models;
+@using Microsoft.AspNetCore.SignalR.Client
+@inject NavigationManager NavManager
+@implements IAsyncDisposable
+@inject IChatService ChatService
+@inject IMessageService MessageService
+@inject HttpClient Http
+
+<AuthorizeView>
+    <Authorized>
+    <div class="h-[100vh] overflow-y-hidden">
+
+<div  class="border-r-[1px] h-[91vh] w-[70vw] mr-auto" >
+    <div class="border-b-[1px] pt-4 border-gray-200 pl-5"><h1 class=" text-white my-[10px] font-bold text-3xl"># @chat.Title</h1></div>
+        <div class="flex flex-col-reverse">
+            @foreach (string message in messages)
+            {
+                <div class="p-2 pl-5 text-2xl text-white">@message</div>
+            }
+            @foreach (Message message in oldMessages)
+            {
+                 <div class="flex p-2 pl-5 text-2xl text-white">@message.PosterName: @message.Content</div>     
+            }
+                </div>
+    </div>
+
+<div class="flex w-[70vw] bg-white">
+    <MudTextField FullWidth=false Label="Message" class="px-2 bg-white w-[60vw] text-white"
+                  Variant="Variant.Text" @bind-Value="messageInput"></MudTextField>
+                  <div class="m-2">
+                <MudButton Variant="Variant.Outlined" Style="@($"background:{Colors.Purple.Lighten1}")" EndIcon="@Icons.Material.Filled.Send" Class="text-white" @onclick="(() => Send(context.User.Identity.Name))" disabled="@(IsConnected == false)">Send</MudButton>
+                    </div>
+</div>
+</div>
+</Authorized>
+<NotAuthorized>
+    <MudContainer>
+        <div class="text-2xl font-bold text-white pt-40 w-96">To  see messages, you must be a logged in use. You are not logged in. </div> 
+    </MudContainer>
+</NotAuthorized>
+</AuthorizeView>
+
+
+
+
+
+@code {
+    private HubConnection? hubConnection;
+    private List<string> messages = new();
+    private string? userInput;
+    private string? messageInput;
+
+    [Parameter]
+    public int Id { get; set; }
+    public List<Message> oldMessages = new();
+
+    Learner.Shared.Models.Chat chat = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(NavManager.ToAbsoluteUri("/chathub"))
+            .WithAutomaticReconnect()
+            .Build();
+
+        hubConnection.On<string, string>("RecieveMessage", (user, message) =>
+        {
+            var formattedMessage = $"{user}: {message}";
+            messages.Add(formattedMessage);
+            InvokeAsync(StateHasChanged);
+        });
+
+        await hubConnection.StartAsync();
+
+
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id != null)
+        {
+            chat = await ChatService.GetChat(Id);
+            oldMessages = await MessageService.GetChatMessages(Id);
+        }
+    }
+
+    private async Task Send(string name)
+    {
+        var newMessage = new DTOs.PostMessageDto();
+
+        newMessage.PosterName = name;
+        newMessage.Content = messageInput;
+        newMessage.ChatId = Id;
+
+    if (hubConnection is not null)
+        {
+            await hubConnection.SendAsync("SendMessage", name, messageInput);
+        }
+
+        await MessageService.PostMessage(newMessage);
+    }
+
+
+    public bool IsConnected => hubConnection?.State == HubConnectionState.Connected;
+
+    public async ValueTask DisposeAsync()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.DisposeAsync();
+        }
+    }
+}

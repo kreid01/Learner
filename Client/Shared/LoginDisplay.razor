@@ -4,13 +4,17 @@
 @inject NavigationManager Navigation
 @inject SignOutSessionStateManager SignOutManager
 
-<AuthorizeView>
+<AuthorizeView> 
     <Authorized>
-        Hello, @context.User.Identity?.Name!
-        <MudButton varirant="Variant.Filled" @onclick="BeginLogout">Log out</MudButton>
+        <div class="ml-auto">Hello, @context.User.Identity?.Name
+        <MudButton class="text-white" varirant="Variant.Filled" @onclick="BeginLogout">Log out</MudButton>
+
+            </div>
     </Authorized>
     <NotAuthorized>
+        <div class="ml-auto">
         <MudButton class="text-white" href="authentication/login">Log in</MudButton>
+        </div>
     </NotAuthorized>
 </AuthorizeView>
 
