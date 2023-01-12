@@ -1,12 +1,15 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using Learner.Shared.Models;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Learner.Server.Hubs
 {
     public class Chathub : Hub
     {
-        public Task SendMessage(string user, string message)
+        public Task SendMessage(NewMessage newMessage)
         {
-            return Clients.All.SendAsync("RecieveMessage", user, message);
+            return Clients.All.SendAsync("RecieveMessage", newMessage);
         }
     }
+
+
 }

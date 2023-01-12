@@ -44,7 +44,7 @@ namespace Learner.Server.Repostiory
         {
             var messages = await _context.ScanAsync<Message>(default).GetRemainingAsync();
 
-            return messages.Where(m => m.ChatId == id).ToList();
+            return messages.Where(m => m.ChatId == id).OrderByDescending(m => m.Id).ToList();
         }
 
 

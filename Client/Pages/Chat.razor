@@ -10,36 +10,56 @@
 
 <AuthorizeView>
     <Authorized>
-    <div class="h-[100vh] overflow-y-hidden">
+        <div class="h-[95vh]">
 
-<div  class="border-r-[1px] h-[91vh] w-[70vw] mr-auto" >
-    <div class="border-b-[1px] pt-4 border-gray-200 pl-5"><h1 class=" text-white my-[10px] font-bold text-3xl"># @chat.Title</h1></div>
-        <div class="flex flex-col-reverse">
-            @foreach (string message in messages)
-            {
-                <div class="p-2 pl-5 text-2xl text-white">@message</div>
-            }
-            @foreach (Message message in oldMessages)
-            {
-                 <div class="flex p-2 pl-5 text-2xl text-white">@message.PosterName: @message.Content</div>     
-            }
+            <div class="border-r-[1px] border-indigo-800 h-[87vh] w-[70vw] mr-auto">
+                <div class="border-b-[1px] pt-4 border-indigo-800 pl-5"><h1 class=" text-black my-[10px] font-bold text-3xl"># @chat.Title</h1></div>
+                <div class="flex h-[80vh] flex-col-reverse overflow-y-scroll border-b-[1px] border-b-indigo-800">
+                    @foreach (NewMessage message in messages)
+                    {
+                        <div class="p-2 pl-5 text-2xl text-black">
+                            <div class="flex">
+                                <img class="w-10 h-10 rounded-circle" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="" />
+                                <div class="ml-3 flex ">
+                                    <p class="font-bold -mt-1">@message.name</p>
+                                    <p class="ml-3 text-sm text-gray-300">Now</p>
+                                </div>
+                            </div>
+                            <p class="ml-[52px] -mt-2">@message.message</p>
+                        </div>
+                    }
+                    @foreach (Message message in oldMessages)
+                    {
+                        <div class="p-2 pl-5 text-2xl text-black">
+                            <div class="flex">
+                                <img class="w-10 h-10 rounded-circle" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="" />
+                                <div class="ml-3 flex ">
+                                    <p class="font-bold -mt-1">@message.PosterName</p>
+                                    <p class="ml-3 text-sm text-gray-300">@message.CreatedDate.Substring(0,16)</p>
+                                </div>
+                            </div>
+                            <p class="ml-[53px] -mt-2">@message.Content</p>
+                        </div>
+                    }
                 </div>
-    </div>
+            </div>
 
-<div class="flex w-[70vw] bg-white">
-    <MudTextField FullWidth=false Label="Message" class="px-2 bg-white w-[60vw] text-white"
-                  Variant="Variant.Text" @bind-Value="messageInput"></MudTextField>
-                  <div class="m-2">
-                <MudButton Variant="Variant.Outlined" Style="@($"background:{Colors.Purple.Lighten1}")" EndIcon="@Icons.Material.Filled.Send" Class="text-white" @onclick="(() => Send(context.User.Identity.Name))" disabled="@(IsConnected == false)">Send</MudButton>
-                    </div>
-</div>
-</div>
-</Authorized>
-<NotAuthorized>
-    <MudContainer>
-        <div class="text-2xl font-bold text-white pt-40 w-96">To  see messages, you must be a logged in use. You are not logged in. </div> 
-    </MudContainer>
-</NotAuthorized>
+            <div class="flex px-2 w-[70vw] bg-white border-r-[1px] border-indigo-800">
+                <MudTextField FullWidth=false Label="Message" class="px-2 bg-white w-[60vw] text-white"
+                              Variant="Variant.Text" @bind-Value="messageInput"></MudTextField>
+                <div class="m-2 mr-4">
+                    <MudButton Variant="Variant.Outlined" Style="@($"background:{Colors.Purple.Lighten1}")"
+                               EndIcon="@Icons.Material.Filled.Send" Class="text-white" @onclick="(() => Send(context.User.Identity.Name))"
+                               disabled="@(IsConnected == false)">Send</MudButton>
+                </div>
+            </div>
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <MudContainer>
+            <div class="text-2xl font-bold text-black -ml-[17vw] w-96">To  see messages, you must be a logged in use. You are not logged in. </div>
+        </MudContainer>
+    </NotAuthorized>
 </AuthorizeView>
 
 
@@ -48,8 +68,7 @@
 
 @code {
     private HubConnection? hubConnection;
-    private List<string> messages = new();
-    private string? userInput;
+    private List<NewMessage> messages = new();
     private string? messageInput;
 
     [Parameter]
@@ -65,11 +84,13 @@
             .WithAutomaticReconnect()
             .Build();
 
-        hubConnection.On<string, string>("RecieveMessage", (user, message) =>
+        hubConnection.On<NewMessage>("RecieveMessage", (recievedMessage) =>
         {
-            var formattedMessage = $"{user}: {message}";
-            messages.Add(formattedMessage);
-            InvokeAsync(StateHasChanged);
+            if (recievedMessage.chatId == Id)
+            {
+                messages.Add(recievedMessage);
+                InvokeAsync(StateHasChanged);
+            }
         });
 
         await hubConnection.StartAsync();
@@ -82,6 +103,7 @@
         if (Id != null)
         {
             chat = await ChatService.GetChat(Id);
+            messages = new List<NewMessage>();
             oldMessages = await MessageService.GetChatMessages(Id);
         }
     }
@@ -89,17 +111,24 @@
     private async Task Send(string name)
     {
         var newMessage = new DTOs.PostMessageDto();
-
         newMessage.PosterName = name;
         newMessage.Content = messageInput;
         newMessage.ChatId = Id;
 
-    if (hubConnection is not null)
+        var sentMessage = new NewMessage();
+
+        sentMessage.message = messageInput;
+        sentMessage.name = name;
+        sentMessage.chatId = Id;
+
+        if (hubConnection is not null)
         {
-            await hubConnection.SendAsync("SendMessage", name, messageInput);
+            await hubConnection.SendAsync("SendMessage", sentMessage);
         }
 
         await MessageService.PostMessage(newMessage);
+        messageInput = "";
+
     }
 
 
