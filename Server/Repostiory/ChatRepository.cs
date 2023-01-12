@@ -28,10 +28,17 @@ namespace Learner.Server.Repostiory
             }
         }
 
+        public async Task<List<Chat>> GetChannelChats(int id)
+        {
+            var chats = await _context.ScanAsync<Chat>(default).GetRemainingAsync();
+
+            return chats.Where(m => m.ChannelId == id).ToList();
+        }
+
         public async Task<Chat> GetChat(int id)
         {
             var Chat = await _context.LoadAsync<Chat>(id);
-            var oc = Chat;
+
             if (Chat == null) return new Chat();
             return Chat;
         }

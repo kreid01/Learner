@@ -13,6 +13,8 @@ namespace Learner.Client.Services
 
         Task PostChat(PostChatDto Chat);
 
+        Task<List<Chat>> GetChannelChats(int channelId);
+
         Task DeleteChat(int id);
 
         Task UpdateChat(Chat Chat);

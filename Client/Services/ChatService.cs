@@ -32,6 +32,15 @@ namespace Learner.Client.Services
             throw new Exception("Chat not found");
         }
 
+        public async Task<List<Chat>> GetChannelChats(int channelId)
+        {
+            var result = await _http.GetFromJsonAsync<List<Chat>>($"channels/{channelId}");
+            if (result != null)
+                return result;
+            throw new Exception("Message not found");
+        }
+
+
 
         public async Task UpdateChat(Chat Chat)
         {
@@ -48,13 +57,12 @@ namespace Learner.Client.Services
 
         public async Task PostChat(PostChatDto updateChat)
         {
-            List<int> users = new();
-            users.Add(1);
 
             Chat Chat = new()
             {
                 Id = Chats.Count + 1,
                 CreatorId = 1,
+                ChannelId = 1,
                 Title = updateChat.Title,
 
             };

@@ -30,6 +30,21 @@ namespace Learner.Server.Controllers
             return Ok(result);
         }
 
+        [HttpGet("/channels/{channelId}")]
+        public async Task<IActionResult> GetChannelChats(int channelId, string? password)
+        {
+
+            var result = await _repository.GetChannelChats(channelId);
+
+            if (result == null)
+            {
+                return NotFound($"{channelId} id does not exist");
+            }
+
+            return Ok(result);
+        }
+
+
         [HttpGet]
         public async Task<IActionResult> GetAllChats()
         {

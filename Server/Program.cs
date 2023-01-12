@@ -3,6 +3,7 @@ using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Learner.Server.Hubs;
 using Learner.Server.Repostiory;
+using Learner.Server.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Identity.Web;
@@ -27,6 +28,9 @@ builder.Services.AddSingleton<IDynamoDBContext, DynamoDBContext>();
 
 builder.Services.AddSingleton<IMessageRepository, MessageRepository>();
 builder.Services.AddSingleton<IChatRepository, ChatRepository>();
+builder.Services.AddSingleton<IChannelRepository, ChannelRepository>();
+
+builder.Services.AddSingleton<IControllerService, ControllerService>();
 
 builder.Services.Configure<JwtBearerOptions>(
     JwtBearerDefaults.AuthenticationScheme, options =>

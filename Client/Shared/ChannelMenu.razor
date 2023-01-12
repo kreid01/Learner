@@ -1,8 +1,10 @@
-﻿@using Learner.Client.Services
+﻿@using Learner.Client.DTOs;
+@using Learner.Client.Services
 @using Learner.Shared.Models
 @using Microsoft.AspNetCore.Authorization
 @inject NavigationManager NavigationManager
-@inject IChatService ChatServices
+@inject IChatService ChatService
+@inject IChannelService ChannelService
 @attribute [Authorize]
 
 <AuthorizeView>
@@ -15,19 +17,15 @@
                 </div>
 
                 <div class="p-3 text-lg">
-                    <h2>Channels</h2>
+                    <h2>Channels <button @onclick="ToggleNavMenu" class="ml-20">+</button></h2>
                     <div class="flex flex-column">
-                        @foreach (Chat chat in ChatServices.Chats)
+                        @foreach (Chat chat in ChatService.Chats)
                         {
                             <button class="mr-auto" @onclick="(() => GoToChat(chat.Id))"># @chat.Title</button>
                         }
                     </div>
                 </div>
-                <div class="p-3 text-lg">
-                    <h2 py-3>Direct Messages</h2>
-                    <p> - Bot</p>
-                    <p> - Sam</p>
-                </div>
+     
 
             </div>
         </div>
@@ -46,15 +44,39 @@
     </NotAuthorized>
 </AuthorizeView>
 
+@if (!collapseNavMenu)
+{
+    <div class="h-[14vh] w-[20%] z-10 bg-white          border-2 rounded-md shadow-md  absolute top-[20%] left-[10%]">
+        <MudTextField Label="Title" class="mx-2 mt-2" Margin="Margin.Dense"
+                  Variant="Variant.Text" @bind-Value="chat.Title"></MudTextField>
+        <MudButton class="mt-5 ml-2" @onclick="HandlePost" Variant="Variant.Filled">Create</MudButton>
+    </div>
+}
+
 @code {
 
     protected override async Task OnInitializedAsync()
     {
-        await ChatServices.GetChats();
+        await ChatService.GetChats();
     }
 
     void GoToChat(int id)
     {
         NavigationManager.NavigateTo($"/chat/{id}");
+    }
+
+    private bool collapseNavMenu = true;
+
+    PostChatDto chat = new();
+
+    async Task HandlePost()
+    {
+        await ChatService.PostChat(chat);
+        ToggleNavMenu();
+    }
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
     }
 }

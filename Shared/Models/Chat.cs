@@ -12,8 +12,13 @@ namespace Learner.Shared.Models
         [DynamoDBProperty("creator_id")]
         public int CreatorId { get; set; }
 
+
+        [DynamoDBProperty("channel_id")]
+        public int ChannelId { get; set; }
+
         [DynamoDBProperty("title")]
         public string? Title { get; set; }
+
 
 
     }

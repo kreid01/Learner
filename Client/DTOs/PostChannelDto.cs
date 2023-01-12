@@ -1,8 +1,10 @@
 ﻿namespace Learner.Client.DTOs
 {
-    public class PostChatDto
+    public class PostChannelDto
     {
         public string Title { get; set; }
+
+        public string? Password { get; set; }
 
     }
 }

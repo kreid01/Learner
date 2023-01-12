@@ -21,4 +21,10 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Client\Learner.Client.csproj" />
+    <ProjectReference Include="..\Server\Learner.Server.csproj" />
+    <ProjectReference Include="..\Shared\Learner.Shared.csproj" />
+  </ItemGroup>
+
 </Project>

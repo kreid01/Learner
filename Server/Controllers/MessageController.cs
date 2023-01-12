@@ -1,4 +1,5 @@
 ﻿using Learner.Server.Repostiory;
+using Learner.Server.Services;
 using Learner.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,9 +11,10 @@ namespace Learner.Server.Controllers
     {
         private readonly IMessageRepository _repository;
 
-        public MessagesController(IMessageRepository repository)
+        public MessagesController(IMessageRepository repository, IControllerService service)
         {
             _repository = repository;
+
         }
 
         [HttpGet("{MessageId}")]

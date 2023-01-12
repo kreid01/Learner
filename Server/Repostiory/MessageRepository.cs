@@ -1,4 +1,5 @@
 ﻿using Amazon.DynamoDBv2.DataModel;
+using Learner.Server.Services;
 using Learner.Shared.Models;
 
 namespace Learner.Server.Repostiory
@@ -7,9 +8,11 @@ namespace Learner.Server.Repostiory
     {
 
         private readonly IDynamoDBContext _context;
-        public MessageRepository(IDynamoDBContext context)
+        private readonly IControllerService _service;
+        public MessageRepository(IDynamoDBContext context, IControllerService service)
         {
             _context = context;
+            _service = service;
         }
         public async Task<bool> DeleteMessage(int id)
         {
@@ -44,7 +47,7 @@ namespace Learner.Server.Repostiory
         {
             var messages = await _context.ScanAsync<Message>(default).GetRemainingAsync();
 
-            return messages.Where(m => m.ChatId == id).OrderByDescending(m => m.Id).ToList();
+            return _service.FilterMessagesForChat(messages, id);
         }
 
 
