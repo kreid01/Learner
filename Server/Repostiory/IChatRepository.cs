@@ -9,6 +9,7 @@ namespace Learner.Server.Repostiory
         Task<Chat> GetChat(int id);
 
         Task<Chat> PostChat(Chat Chat);
+
         Task<List<Chat>> GetChannelChats(int id);
 
         Task<Chat> UpdateChat(Chat updateChat);
